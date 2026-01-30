@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 
 const STORAGE_KEYS = {
     PRODUCTS: 'products_v1',
@@ -17,15 +17,39 @@ export interface StorageAdapter {
  * Preferred over AsyncStorage for larger payloads and better performance.
  */
 class FileSystemStorage implements StorageAdapter {
+    private getBaseDirectory(): string {
+        if (FileSystem.documentDirectory) {
+            return FileSystem.documentDirectory;
+        }
+
+        if (FileSystem.cacheDirectory) {
+            return FileSystem.cacheDirectory;
+        }
+
+        throw new Error('No file system directory available');
+    }
+
     private getFilePath(key: string): string {
-        return `${FileSystem.documentDirectory}${key}.json`;
+        return `${this.getBaseDirectory()}${key}.json`;
+    }
+
+    private async ensureBaseDirectory(): Promise<void> {
+        const baseDirectory = this.getBaseDirectory();
+        const info = await FileSystem.getInfoAsync(baseDirectory);
+
+        if (!info.exists) {
+            await FileSystem.makeDirectoryAsync(baseDirectory, { intermediates: true });
+        }
     }
 
     async save<T>(key: string, value: T): Promise<void> {
         try {
+            await this.ensureBaseDirectory();
             const filePath = this.getFilePath(key);
             const jsonString = JSON.stringify(value);
-            await FileSystem.writeAsStringAsync(filePath, jsonString);
+            await FileSystem.writeAsStringAsync(filePath, jsonString, {
+                encoding: FileSystem.EncodingType.UTF8,
+            });
         } catch (error) {
             console.error(`Storage save error for key "${key}":`, error);
             throw new Error(`Failed to save data: ${key}`);
@@ -34,6 +58,7 @@ class FileSystemStorage implements StorageAdapter {
 
     async load<T>(key: string): Promise<T | null> {
         try {
+            await this.ensureBaseDirectory();
             const filePath = this.getFilePath(key);
             const info = await FileSystem.getInfoAsync(filePath);
 
@@ -41,7 +66,9 @@ class FileSystemStorage implements StorageAdapter {
                 return null;
             }
 
-            const jsonString = await FileSystem.readAsStringAsync(filePath);
+            const jsonString = await FileSystem.readAsStringAsync(filePath, {
+                encoding: FileSystem.EncodingType.UTF8,
+            });
             return JSON.parse(jsonString) as T;
         } catch (error) {
             console.error(`Storage load error for key "${key}":`, error);

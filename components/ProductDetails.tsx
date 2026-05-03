@@ -14,7 +14,7 @@ interface ProductDetailsProps {
 
 export function ProductDetails({ product, onClose, onEdit, onDelete }: ProductDetailsProps) {
     const colorScheme = useColorScheme();
-    const theme = colors[colorScheme ?? 'light'];
+    const theme = colors[colorScheme === 'dark' ? 'dark' : 'light'];
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>

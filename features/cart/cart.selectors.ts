@@ -8,7 +8,15 @@ export const selectCartItemCount = (state: RootState) =>
 
 export const selectCartLineCount = (state: RootState) => state.cart.items.length;
 
-export const selectCartDetailedItems = (state: RootState, products: Product[]) =>
+type CartDetailedItem = (typeof import('./cart.slice').cartItemAdded) extends never ? any : {
+    productId: string;
+    quantity: number;
+    addedAt: number;
+    product: Product;
+    lineTotal: number;
+};
+
+export const selectCartDetailedItems = (state: RootState, products: Product[]): CartDetailedItem[] =>
     state.cart.items
         .map((item) => {
             const product = products.find((entry) => entry.id === item.productId);
@@ -23,7 +31,7 @@ export const selectCartDetailedItems = (state: RootState, products: Product[]) =
                 lineTotal: product.price * item.quantity,
             };
         })
-        .filter(Boolean);
+        .filter((x): x is CartDetailedItem => Boolean(x));
 
 export const selectCartSubtotal = (state: RootState, products: Product[]) =>
-    selectCartDetailedItems(state, products).reduce((total, item) => total + item!.lineTotal, 0);
+    selectCartDetailedItems(state, products).reduce((total, item) => total + item.lineTotal, 0);

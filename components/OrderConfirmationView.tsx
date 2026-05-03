@@ -9,7 +9,8 @@ import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 
 export function OrderConfirmationView() {
     const colorScheme = useColorScheme();
-    const theme = colors[colorScheme === 'dark' ? 'dark' : 'light'];
+    const colorKey = colorScheme === 'dark' ? 'dark' : 'light';
+    const theme = colors[colorKey];
     const latestOrder = useAppSelector(selectLatestOrder);
 
     if (!latestOrder) {
@@ -34,7 +35,7 @@ export function OrderConfirmationView() {
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 <View style={styles.successOrb} />
                 <View style={[styles.successCard, { backgroundColor: theme.surfaceElevated }, shadows.md]}>
-                    <View style={[styles.successIcon, { backgroundColor: theme.accentSoft ?? theme.surfaceMuted }]}>
+                    <View style={[styles.successIcon, { backgroundColor: theme.accentSoft ?? colors[colorKey].surfaceMuted }]}>
                         <Ionicons name="checkmark" size={28} color={theme.success} />
                     </View>
                     <Text style={[styles.title, { color: theme.text.primary }]}>Order confirmed</Text>

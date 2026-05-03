@@ -14,7 +14,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product, onDelete, onEdit, onPress }: ProductCardProps) {
     const colorScheme = useColorScheme();
-    const theme = colors[colorScheme ?? 'light'];
+    const theme = colors[colorScheme === 'dark' ? 'dark' : 'light'];
 
     const handleDelete = () => {
         Alert.alert('Delete Product', `Are you sure you want to delete "${product.name}"?`, [

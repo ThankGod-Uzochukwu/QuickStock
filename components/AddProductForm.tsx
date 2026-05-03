@@ -35,7 +35,7 @@ interface AddProductFormProps {
 
 export function AddProductForm({ onSubmit, onCancel, initialValues, title, submitLabel }: AddProductFormProps) {
     const colorScheme = useColorScheme();
-    const theme = colors[colorScheme ?? 'light'];
+    const theme = colors[colorScheme === 'dark' ? 'dark' : 'light'];
 
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');

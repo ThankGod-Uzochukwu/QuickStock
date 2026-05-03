@@ -8,6 +8,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { store } from '@/store/store';
 import { colors } from '@/styles/design-tokens';
 
+
 export const unstable_settings = {
   anchor: '(tabs)',
 };

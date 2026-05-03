@@ -137,6 +137,13 @@ export function createProduct(
         price: validation.data.price,
         imageUri: validation.data.imageUri,
         createdAt: Date.now(),
+        description: '',
+        category: 'Uncategorized',
+        rating: 4,
+        reviewCount: 0,
+        inStock: 0,
+        featured: false,
+        tags: [],
     };
 
     return { valid: true, data: product };

@@ -11,6 +11,7 @@ import {
     productRemoved,
     productsErrorSet,
     productsHydrated,
+    productsLoadingChanged,
     productUpdated,
 } from './products.slice';
 

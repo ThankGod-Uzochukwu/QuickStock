@@ -2,6 +2,8 @@ import * as FileSystem from 'expo-file-system/legacy';
 
 const STORAGE_KEYS = {
     PRODUCTS: 'products_v1',
+    CART: 'cart_v1',
+    ORDERS: 'orders_v1',
     APP_STATE: 'app_state_v1',
 } as const;
 

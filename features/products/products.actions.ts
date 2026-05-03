@@ -1,5 +1,6 @@
 import { selectIsProductLimitReached, selectProductsCount } from '../../features/products/products.selectors';
 import { Product, PRODUCT_LIMITS } from '../../features/products/types';
+import { fetchCatalogProducts } from '../../services/catalog/catalog.service';
 import { notificationService } from '../../services/notifications/notification.adapter';
 import { loadPersistedState, persistState } from '../../services/storage/persistence.service';
 import { STORAGE_KEYS } from '../../services/storage/storage.adapter';
@@ -111,16 +112,17 @@ export const updateProduct =
  */
 export const loadProducts = () => async (dispatch: AppDispatch) => {
     try {
-        const products = await loadPersistedState<Product[]>(STORAGE_KEYS.PRODUCTS);
+        dispatch(productsLoadingChanged(true));
 
-        if (products) {
-            dispatch(productsHydrated(products));
-        } else {
-            dispatch(productsHydrated([]));
-        }
+        const cachedProducts = await loadPersistedState<Product[]>(STORAGE_KEYS.PRODUCTS);
+        const catalogProducts = await fetchCatalogProducts();
+        const products = cachedProducts?.length ? cachedProducts : catalogProducts;
+
+        dispatch(productsHydrated(products));
+        await persistState(STORAGE_KEYS.PRODUCTS, products);
     } catch (error) {
         console.error('Failed to load products:', error);
-        dispatch(productsHydrated([]));
+        dispatch(productsErrorSet('Failed to load catalog. Please try again.'));
     }
 };
 

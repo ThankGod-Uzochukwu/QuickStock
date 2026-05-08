@@ -35,7 +35,7 @@ interface AddProductFormProps {
 
 export function AddProductForm({ onSubmit, onCancel, initialValues, title, submitLabel }: AddProductFormProps) {
     const colorScheme = useColorScheme();
-    const theme = colors[colorScheme ?? 'light'];
+    const theme = colors[colorScheme];
 
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
@@ -93,7 +93,7 @@ export function AddProductForm({ onSubmit, onCancel, initialValues, title, submi
         onSubmit(name.trim(), parsedPrice, imageUri);
     };
 
-    const isValid = name.trim() && price && imageUri;
+    const isValid = Boolean(name.trim() && price && imageUri);
 
     return (
         <KeyboardAvoidingView
@@ -227,6 +227,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: typography.sizes.xxl,
         fontWeight: typography.weights.bold,
+        fontFamily: typography.families.heading,
     },
     section: {
         gap: spacing.sm,
@@ -234,6 +235,7 @@ const styles = StyleSheet.create({
     label: {
         fontSize: typography.sizes.md,
         fontWeight: typography.weights.semibold,
+        fontFamily: typography.families.body,
     },
     imagePicker: {
         height: 200,
@@ -264,6 +266,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         paddingHorizontal: spacing.md,
         fontSize: typography.sizes.md,
+        fontFamily: typography.families.body,
     },
     errorContainer: {
         padding: spacing.md,
@@ -272,6 +275,7 @@ const styles = StyleSheet.create({
     errorText: {
         fontSize: typography.sizes.sm,
         fontWeight: typography.weights.medium,
+        fontFamily: typography.families.body,
         textAlign: 'center',
     },
     actions: {
@@ -299,10 +303,12 @@ const styles = StyleSheet.create({
     buttonText: {
         fontSize: typography.sizes.md,
         fontWeight: typography.weights.semibold,
+        fontFamily: typography.families.body,
     },
     submitButtonText: {
         color: '#FFFFFF',
         fontSize: typography.sizes.md,
         fontWeight: typography.weights.semibold,
+        fontFamily: typography.families.body,
     },
 });

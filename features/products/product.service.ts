@@ -167,3 +167,60 @@ export function updateProductData(
         },
     };
 }
+
+const CATALOG_SEED = [
+    {
+        name: 'Linen Market Tote',
+        price: 28.5,
+        imageUri:
+            'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80',
+    },
+    {
+        name: 'Ceramic Pour-Over Set',
+        price: 42,
+        imageUri:
+            'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80',
+    },
+    {
+        name: 'Studio Desk Lamp',
+        price: 79,
+        imageUri:
+            'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80',
+    },
+    {
+        name: 'Essential Travel Kit',
+        price: 54.25,
+        imageUri:
+            'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80',
+    },
+    {
+        name: 'Soft Knit Throw',
+        price: 66,
+        imageUri:
+            'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=800&q=80',
+    },
+    {
+        name: 'Glass Storage Trio',
+        price: 31,
+        imageUri:
+            'https://images.unsplash.com/photo-1501045661006-fcebe0257c3f?auto=format&fit=crop&w=800&q=80',
+    },
+];
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export async function fetchCatalog(): Promise<Product[]> {
+    await delay(700);
+
+    if (Math.random() < 0.1) {
+        throw new Error('Unable to reach the catalog service.');
+    }
+
+    return CATALOG_SEED.map((seed, index) => ({
+        id: `seed_${Date.now()}_${index}`,
+        name: seed.name,
+        price: seed.price,
+        imageUri: seed.imageUri,
+        createdAt: Date.now() - index * 1000 * 60 * 60,
+    }));
+}

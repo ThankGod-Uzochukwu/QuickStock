@@ -3,6 +3,8 @@ import * as FileSystem from 'expo-file-system';
 const STORAGE_KEYS = {
     PRODUCTS: 'products_v1',
     APP_STATE: 'app_state_v1',
+    CART: 'cart_v1',
+    LAST_ORDER: 'last_order_v1',
 } as const;
 
 export interface StorageAdapter {
@@ -18,7 +20,10 @@ export interface StorageAdapter {
  */
 class FileSystemStorage implements StorageAdapter {
     private getFilePath(key: string): string {
-        return `${FileSystem.documentDirectory}${key}.json`;
+        const baseUri = FileSystem.Paths.document.uri;
+        const safeBase = baseUri.endsWith('/') ? baseUri : `${baseUri}/`;
+
+        return `${safeBase}${key}.json`;
     }
 
     async save<T>(key: string, value: T): Promise<void> {

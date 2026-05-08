@@ -1,26 +1,37 @@
 import { Product } from '@/features/products/types';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { borderRadius, colors, spacing, typography } from '@/styles/design-tokens';
+import { formatCurrency } from '@/utils/format';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 interface ProductDetailsProps {
     product: Product;
-    onClose: () => void;
-    onEdit: (product: Product) => void;
-    onDelete: (productId: string) => void;
+    onBack: () => void;
+    onAddToCart: (product: Product) => void;
+    onGoToCart: () => void;
+    quantityInCart?: number;
 }
 
-export function ProductDetails({ product, onClose, onEdit, onDelete }: ProductDetailsProps) {
+export function ProductDetails({
+    product,
+    onBack,
+    onAddToCart,
+    onGoToCart,
+    quantityInCart,
+}: ProductDetailsProps) {
     const colorScheme = useColorScheme();
-    const theme = colors[colorScheme ?? 'light'];
+    const theme = colors[colorScheme];
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
             <View style={styles.header}>
-                <Pressable onPress={onClose} style={styles.headerButton}>
-                    <Ionicons name="chevron-down" size={24} color={theme.text.primary} />
+                <Pressable onPress={onBack} style={styles.headerButton}>
+                    <Ionicons name="arrow-back" size={22} color={theme.text.primary} />
+                </Pressable>
+                <Pressable onPress={onGoToCart} style={styles.headerButton}>
+                    <Ionicons name="bag-handle" size={20} color={theme.text.primary} />
                 </Pressable>
             </View>
 
@@ -30,39 +41,24 @@ export function ProductDetails({ product, onClose, onEdit, onDelete }: ProductDe
                 <View style={styles.summary}>
                     <Text style={[styles.name, { color: theme.text.primary }]}>{product.name}</Text>
                     <View style={styles.priceRow}>
-                        <Text style={[styles.price, { color: theme.primary }]}>${product.price.toFixed(2)}</Text>
-                        <View style={styles.actions}>
-                            <Pressable
-                                onPress={() => onDelete(product.id)}
-                                style={({ pressed }) => [
-                                    styles.actionButton,
-                                    { backgroundColor: theme.error + '15' },
-                                    pressed && styles.actionButtonPressed,
-                                ]}
+                        <Text style={[styles.price, { color: theme.primary }]}>
+                            {formatCurrency(product.price)}
+                        </Text>
+                        {quantityInCart ? (
+                            <View style={[styles.cartPill, { backgroundColor: theme.primary }]}
                             >
-                                <Ionicons name="trash" size={18} color={theme.error} />
-                            </Pressable>
-                            <Pressable
-                                onPress={() => onEdit(product)}
-                                style={({ pressed }) => [
-                                    styles.actionButton,
-                                    { backgroundColor: theme.primary + '15' },
-                                    pressed && styles.actionButtonPressed,
-                                ]}
-                            >
-                                <Ionicons name="create" size={18} color={theme.primary} />
-                            </Pressable>
-                        </View>
+                                <Text style={styles.cartPillText}>{quantityInCart} in cart</Text>
+                            </View>
+                        ) : null}
                     </View>
                 </View>
 
                 <View style={styles.section}>
                     <Text style={[styles.sectionTitle, { color: theme.text.primary }]}>About this product</Text>
-                    <Text style={[styles.sectionBody, { color: theme.text.secondary }]}
-                    >
-                        {product.name} is stored with QuickStock for fast lookup and reliable inventory
-                        tracking. Add notes, update pricing, or swap the image anytime to keep your
-                        catalog current.
+                    <Text style={[styles.sectionBody, { color: theme.text.secondary }]}>
+                        {product.name} brings a modern, minimal aesthetic to your daily routine. Built
+                        for durability and ease of use, it is ready for fast-moving teams and bold
+                        spaces.
                     </Text>
                 </View>
             </ScrollView>
@@ -70,14 +66,16 @@ export function ProductDetails({ product, onClose, onEdit, onDelete }: ProductDe
             <View style={[styles.footer, { backgroundColor: theme.background, borderTopColor: theme.border }]}
             >
                 <Pressable
-                    onPress={() => onEdit(product)}
+                    onPress={() => onAddToCart(product)}
                     style={({ pressed }) => [
                         styles.primaryButton,
                         { backgroundColor: theme.primary },
                         pressed && styles.primaryButtonPressed,
                     ]}
                 >
-                    <Text style={styles.primaryButtonText}>Edit Product</Text>
+                    <Text style={styles.primaryButtonText}>
+                        {quantityInCart ? 'Add another' : 'Add to cart'}
+                    </Text>
                 </Pressable>
             </View>
         </View>
@@ -91,7 +89,9 @@ const styles = StyleSheet.create({
     header: {
         paddingTop: spacing.lg,
         paddingHorizontal: spacing.lg,
-        alignItems: 'flex-start',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     headerButton: {
         height: 40,
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     image: {
         width: '100%',
         height: 200,
-        borderRadius: 18
+        borderRadius: 18,
     },
     pagination: {
         flexDirection: 'row',
@@ -130,6 +130,7 @@ const styles = StyleSheet.create({
     name: {
         fontSize: typography.sizes.xl,
         fontWeight: typography.weights.bold,
+        fontFamily: typography.families.heading,
     },
     priceRow: {
         flexDirection: 'row',
@@ -140,42 +141,15 @@ const styles = StyleSheet.create({
         fontSize: typography.sizes.lg,
         fontWeight: typography.weights.bold,
     },
-    actions: {
-        flexDirection: 'row',
-        gap: spacing.sm,
+    cartPill: {
+        paddingHorizontal: spacing.md,
+        paddingVertical: 6,
+        borderRadius: borderRadius.full,
     },
-    actionButton: {
-        height: 36,
-        width: 36,
-        borderRadius: 18,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    actionButtonPressed: {
-        opacity: 0.7,
-    },
-    metaCard: {
-        borderRadius: borderRadius.md,
-        padding: spacing.md,
-        borderWidth: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    metaItem: {
-        alignItems: 'flex-start',
-        gap: spacing.xs,
-        flex: 1,
-    },
-    metaLabel: {
-        fontSize: typography.sizes.sm,
-    },
-    metaValue: {
+    cartPillText: {
+        color: '#FFFFFF',
         fontSize: typography.sizes.sm,
         fontWeight: typography.weights.semibold,
-    },
-    metaDivider: {
-        width: 1,
-        marginHorizontal: spacing.md,
     },
     section: {
         gap: spacing.sm,
@@ -187,6 +161,7 @@ const styles = StyleSheet.create({
     sectionBody: {
         fontSize: typography.sizes.sm,
         lineHeight: typography.sizes.sm * 1.5,
+        fontFamily: typography.families.body,
     },
     footer: {
         padding: spacing.lg,

@@ -4,12 +4,13 @@ import { notificationService } from '../../services/notifications/notification.a
 import { loadPersistedState, persistState } from '../../services/storage/persistence.service';
 import { STORAGE_KEYS } from '../../services/storage/storage.adapter';
 import { AppDispatch, RootState } from '../../store/store';
-import { createProduct, updateProductData } from './product.service';
+import { createProduct, fetchCatalog, updateProductData } from './product.service';
 import {
     productAdded,
     productRemoved,
     productsErrorSet,
     productsHydrated,
+    productsLoadingChanged,
     productUpdated,
 } from './products.slice';
 
@@ -111,16 +112,24 @@ export const updateProduct =
  */
 export const loadProducts = () => async (dispatch: AppDispatch) => {
     try {
+        dispatch(productsLoadingChanged(true));
+
         const products = await loadPersistedState<Product[]>(STORAGE_KEYS.PRODUCTS);
 
-        if (products) {
+        if (products && products.length > 0) {
             dispatch(productsHydrated(products));
-        } else {
-            dispatch(productsHydrated([]));
+            return;
         }
+
+        const catalog = await fetchCatalog();
+        dispatch(productsHydrated(catalog));
+        await persistState(STORAGE_KEYS.PRODUCTS, catalog);
     } catch (error) {
         console.error('Failed to load products:', error);
+        dispatch(productsErrorSet('We could not refresh the catalog. Please try again.'));
         dispatch(productsHydrated([]));
+    } finally {
+        dispatch(productsLoadingChanged(false));
     }
 };
 

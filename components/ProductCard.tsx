@@ -1,38 +1,36 @@
 import { Product } from '@/features/products/types';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { borderRadius, colors, shadows, spacing, typography } from '@/styles/design-tokens';
+import { formatCurrency } from '@/utils/format';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface ProductCardProps {
     product: Product;
-    onDelete: (productId: string) => void;
-    onEdit: (product: Product) => void;
     onPress: (product: Product) => void;
+    onAddToCart: (product: Product) => void;
+    quantityInCart?: number;
 }
 
-export function ProductCard({ product, onDelete, onEdit, onPress }: ProductCardProps) {
+export function ProductCard({ product, onPress, onAddToCart, quantityInCart }: ProductCardProps) {
     const colorScheme = useColorScheme();
-    const theme = colors[colorScheme ?? 'light'];
-
-    const handleDelete = () => {
-        Alert.alert('Delete Product', `Are you sure you want to delete "${product.name}"?`, [
-            { text: 'Cancel', style: 'cancel' },
-            {
-                text: 'Delete',
-                style: 'destructive',
-                onPress: () => onDelete(product.id),
-            },
-        ]);
-    };
+    const theme = colors[colorScheme];
 
     return (
         <Pressable
             onPress={() => onPress(product)}
             style={[styles.container, { backgroundColor: theme.surface }, shadows.sm]}
         >
-            <Image source={{ uri: product.imageUri }} style={styles.image} resizeMode="cover" />
+            <View>
+                <Image source={{ uri: product.imageUri }} style={styles.image} resizeMode="cover" />
+                {quantityInCart ? (
+                    <View style={[styles.cartBadge, { backgroundColor: theme.primary }]}
+                    >
+                        <Text style={styles.cartBadgeText}>{quantityInCart} in cart</Text>
+                    </View>
+                ) : null}
+            </View>
 
             <View style={styles.content}>
                 <View style={styles.info}>
@@ -40,31 +38,23 @@ export function ProductCard({ product, onDelete, onEdit, onPress }: ProductCardP
                         {product.name}
                     </Text>
                     <Text style={[styles.price, { color: theme.primary }]}>
-                        ${product.price.toFixed(2)}
+                        {formatCurrency(product.price)}
                     </Text>
                 </View>
 
                 <View style={styles.actions}>
                     <Pressable
-                        onPress={handleDelete}
+                        onPress={() => onAddToCart(product)}
                         style={({ pressed }) => [
-                            styles.iconButton,
-                            { backgroundColor: theme.error + '15' },
-                            pressed && styles.iconButtonPressed,
+                            styles.addButton,
+                            { backgroundColor: theme.primary },
+                            pressed && styles.addButtonPressed,
                         ]}
                     >
-                        <Ionicons name="trash" size={16} color={theme.error} />
-                    </Pressable>
-
-                    <Pressable
-                        onPress={() => onEdit(product)}
-                        style={({ pressed }) => [
-                            styles.iconButton,
-                            { backgroundColor: theme.primary + '15' },
-                            pressed && styles.iconButtonPressed,
-                        ]}
-                    >
-                        <Ionicons name="create" size={16} color={theme.primary} />
+                        <Ionicons name="bag-add" size={16} color="#FFFFFF" />
+                        <Text style={styles.addButtonText}>
+                            {quantityInCart ? 'Add more' : 'Add'}
+                        </Text>
                     </Pressable>
                 </View>
             </View>
@@ -93,6 +83,7 @@ const styles = StyleSheet.create({
     name: {
         fontSize: typography.sizes.md,
         fontWeight: typography.weights.semibold,
+        fontFamily: typography.families.heading,
         lineHeight: typography.sizes.md * 1.4,
     },
     price: {
@@ -101,17 +92,38 @@ const styles = StyleSheet.create({
     },
     actions: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         gap: spacing.sm,
     },
-    iconButton: {
-        height: 32,
-        width: 32,
-        borderRadius: 16,
+    cartBadge: {
+        position: 'absolute',
+        top: spacing.sm,
+        left: spacing.sm,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: 4,
+        borderRadius: borderRadius.full,
+    },
+    cartBadgeText: {
+        color: '#FFFFFF',
+        fontSize: typography.sizes.xs,
+        fontWeight: typography.weights.semibold,
+        fontFamily: typography.families.body,
+    },
+    addButton: {
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+        gap: spacing.xs,
+        paddingVertical: spacing.xs,
+        paddingHorizontal: spacing.md,
+        borderRadius: borderRadius.full,
     },
-    iconButtonPressed: {
-        opacity: 0.7,
+    addButtonPressed: {
+        opacity: 0.85,
+    },
+    addButtonText: {
+        color: '#FFFFFF',
+        fontSize: typography.sizes.sm,
+        fontWeight: typography.weights.semibold,
+        fontFamily: typography.families.body,
     },
 });

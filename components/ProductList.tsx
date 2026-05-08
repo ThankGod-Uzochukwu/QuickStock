@@ -5,20 +5,35 @@
  */
 
 import { Product } from '@/features/products/types';
-import { spacing } from '@/styles/design-tokens';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { colors, spacing, typography } from '@/styles/design-tokens';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import React from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { ProductCard } from './ProductCard';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 interface ProductListProps {
     products: Product[];
-    onDeleteProduct: (productId: string) => void;
-    onEditProduct: (product: Product) => void;
+    onAddToCart: (product: Product) => void;
     onSelectProduct: (product: Product) => void;
+    columns?: number;
+    cartQuantities?: Record<string, number>;
+    emptyTitle?: string;
+    emptyDescription?: string;
 }
 
-export function ProductList({ products, onDeleteProduct, onEditProduct, onSelectProduct }: ProductListProps) {
+export function ProductList({
+    products,
+    onAddToCart,
+    onSelectProduct,
+    columns = 2,
+    cartQuantities = {},
+    emptyTitle,
+    emptyDescription,
+}: ProductListProps) {
+    const colorScheme = useColorScheme();
+    const theme = colors[colorScheme];
+
     return (
         <FlatList
             data={products}
@@ -26,22 +41,25 @@ export function ProductList({ products, onDeleteProduct, onEditProduct, onSelect
             renderItem={({ item }) => (
                 <ProductCard
                     product={item}
-                    onDelete={onDeleteProduct}
-                    onEdit={onEditProduct}
                     onPress={onSelectProduct}
+                    onAddToCart={onAddToCart}
+                    quantityInCart={cartQuantities[item.id]}
                 />
             )}
-            numColumns={2}
+            numColumns={columns}
+            key={columns}
             contentContainerStyle={styles.listContent}
-            columnWrapperStyle={styles.row}
+            columnWrapperStyle={columns > 1 ? styles.row : undefined}
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={() => (
                 <View style={styles.emptyContainer}>
-                    <MaterialIcons name="not-interested" size={124} color="white" />
+                    <MaterialIcons name="inventory-2" size={96} color={theme.text.tertiary} />
                     <View>
-                        <Text style={styles.emptyTitle}>No Products Yet</Text>
-                        <Text style={styles.emptyDescription}>
-                            Tap the '+' button below to add your first product
+                        <Text style={[styles.emptyTitle, { color: theme.text.primary }]}>
+                            {emptyTitle ?? 'No products match'}
+                        </Text>
+                        <Text style={[styles.emptyDescription, { color: theme.text.secondary }]}>
+                            {emptyDescription ?? 'Try adjusting your search or filters.'}
                         </Text>
                     </View>
                 </View>
@@ -68,16 +86,16 @@ const styles = StyleSheet.create({
         gap: spacing.sm,
     },
     emptyTitle: {
-        fontSize: 20,
-        fontWeight: '700',
+        fontSize: typography.sizes.lg,
+        fontWeight: typography.weights.bold,
+        fontFamily: typography.families.heading,
         marginBottom: spacing.sm,
         textAlign: 'center',
-        color: "white"
     },
     emptyDescription: {
-        fontSize: 14,
+        fontSize: typography.sizes.sm,
         textAlign: 'center',
         opacity: 0.8,
-        color: "white"
+        fontFamily: typography.families.body,
     },
 });

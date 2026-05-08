@@ -11,7 +11,7 @@ export interface Product {
  * These are the source of truth for product limits.
  */
 export const PRODUCT_LIMITS = {
-    MAX_PRODUCTS: 5,
+    MAX_PRODUCTS: 50,
     MIN_PRICE: 0,
     MAX_PRICE: 999999.99,
     MAX_NAME_LENGTH: 100,
